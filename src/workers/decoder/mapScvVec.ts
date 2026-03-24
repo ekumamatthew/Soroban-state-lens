@@ -6,9 +6,9 @@
  * If the callback throws for a given item, that item is replaced with null.
  */
 export function mapScvVec(
-  items: unknown[],
+  items: Array<unknown>,
   normalize: (item: unknown) => unknown,
-): unknown[] {
+): Array<unknown> {
   if (!Array.isArray(items)) {
     return []
   }

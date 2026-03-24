@@ -13,7 +13,7 @@ describe('mapScvVec', () => {
     })
 
     it('preserves insertion order', () => {
-      const order: number[] = []
+      const order: Array<number> = []
       mapScvVec([10, 20, 30], (x) => {
         order.push(x as number)
         return x
@@ -42,27 +42,27 @@ describe('mapScvVec', () => {
 
   describe('invalid input – non-array treated as empty array', () => {
     it('returns [] for null', () => {
-      expect(mapScvVec(null as unknown as unknown[], (x) => x)).toEqual([])
+      expect(mapScvVec(null as unknown as Array<unknown>, (x) => x)).toEqual([])
     })
 
     it('returns [] for undefined', () => {
-      expect(mapScvVec(undefined as unknown as unknown[], (x) => x)).toEqual([])
+      expect(mapScvVec(undefined as unknown as Array<unknown>, (x) => x)).toEqual([])
     })
 
     it('returns [] for a number', () => {
-      expect(mapScvVec(42 as unknown as unknown[], (x) => x)).toEqual([])
+      expect(mapScvVec(42 as unknown as Array<unknown>, (x) => x)).toEqual([])
     })
 
     it('returns [] for a string', () => {
-      expect(mapScvVec('hello' as unknown as unknown[], (x) => x)).toEqual([])
+      expect(mapScvVec('hello' as unknown as Array<unknown>, (x) => x)).toEqual([])
     })
 
     it('returns [] for a plain object', () => {
-      expect(mapScvVec({} as unknown as unknown[], (x) => x)).toEqual([])
+      expect(mapScvVec({} as unknown as Array<unknown>, (x) => x)).toEqual([])
     })
 
     it('returns [] for a boolean', () => {
-      expect(mapScvVec(true as unknown as unknown[], (x) => x)).toEqual([])
+      expect(mapScvVec(true as unknown as Array<unknown>, (x) => x)).toEqual([])
     })
   })
 
@@ -92,7 +92,6 @@ describe('mapScvVec', () => {
 
     it('handles a callback that throws a non-Error value', () => {
       const result = mapScvVec([1], () => {
-        // eslint-disable-next-line @typescript-eslint/no-throw-literal
         throw 'string error'
       })
       expect(result).toEqual([null])
