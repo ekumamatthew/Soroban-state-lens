@@ -1,5 +1,5 @@
-import type { UnsupportedFallback } from './normalizeScVal'
 import { isUnsupportedFallback } from './isUnsupportedFallback'
+import type { UnsupportedFallback } from './normalizeScVal'
 
 /**
  * Returns a normalized UnsupportedFallback from any input.
