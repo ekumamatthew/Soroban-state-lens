@@ -53,6 +53,14 @@ export default function NetworkSelector() {
     }
   }, [networkConfig.networkId, lastCustomUrl, networkConfig.rpcUrl])
 
+  // Auto-focus the input whenever the custom panel becomes visible
+  useEffect(() => {
+    if (showCustomInput) {
+      // Small delay to allow the DOM to paint before focusing
+      setTimeout(() => inputRef.current?.focus(), 50)
+    }
+  }, [showCustomInput])
+
   // Don't render until hydrated to prevent SSR mismatches
   if (!isHydrated) {
     return (
@@ -70,23 +78,24 @@ export default function NetworkSelector() {
   // Initialize custom URL when switching to custom mode
   const handleSelect = (option: NetworkInfo) => {
     if (option.config) {
-      // Preset network: clear any custom URL usage
+      // Preset network: clear any custom URL usage and close everything
       setNetworkConfig(option.config)
       setShowCustomInput(false)
       setValidationError('')
       setCustomRpcUrl('')
+      setIsOpen(false)
     } else {
       // Custom: restore last custom URL or set up for new input
       const urlToUse = lastCustomUrl || networkConfig.rpcUrl || ''
       setNetworkConfig({
         networkId: 'custom',
-        networkPassphrase: '', // Will be set when URL is validated
+        networkPassphrase: '',
         rpcUrl: urlToUse,
       })
-      setCustomRpcUrl(urlToUse)
-      setShowCustomInput(true)
+      setCustomRpcUrl(urlToUse)  // ← preserve any previously typed/saved URL
+      setShowCustomInput(true)   // ← show the input panel
+      setIsOpen(false)           // ← close the dropdown list
     }
-    setIsOpen(false)
   }
 
   const handleCustomUrlBlur = () => {
@@ -104,14 +113,13 @@ export default function NetworkSelector() {
       setNetworkConfig({
         networkId: 'custom',
         rpcUrl: customRpcUrl.trim(),
-        networkPassphrase: 'Custom Network', // Default passphrase
+        networkPassphrase: 'Custom Network',
       })
+      setLastCustomUrl(customRpcUrl.trim())
       setShowCustomInput(false)
       setValidationError('')
-      setTestStatus('idle')
-      setTestError('')
-      setCustomRpcUrl('')
-      setLastCustomUrl(customRpcUrl.trim())
+      // NOTE: We intentionally do NOT clear customRpcUrl here so that
+      // switching back to Custom restores the last typed value.
     } else {
       setValidationError(validation.error || 'Invalid URL')
     }
@@ -138,28 +146,31 @@ export default function NetworkSelector() {
   }
 
   const handleCancelCustom = () => {
+    // If we were never on a valid custom network, fall back to testnet
+    const fallback = lastCustomUrl
+      ? undefined // stay on custom with last applied URL
+      : DEFAULT_NETWORKS.testnet
+
+    if (fallback) {
+      setNetworkConfig(fallback)
+    }
+
     setShowCustomInput(false)
-    setCustomRpcUrl('')
     setValidationError('')
-    setTestStatus('idle')
-    setTestError('')
+    // Restore the last successfully applied URL so re-opening Custom shows it
+    setCustomRpcUrl(lastCustomUrl || '')
   }
 
   const handleCustomUrlChange = (url: string) => {
     setCustomRpcUrl(url)
 
-    // Validate URL and set error message
     if (url.trim() && !isValidUrl(url)) {
       setValidationError('Please enter a valid URL (http:// or https://)')
     } else {
       setValidationError('')
     }
 
-    // Reset test status when URL changes
-    setTestStatus('idle')
-    setTestError('')
-
-    // Update network config immediately for real-time feedback
+    // Update network config in real time so other parts of the app can react
     setNetworkConfig({
       networkId: 'custom',
       rpcUrl: url,
@@ -226,7 +237,7 @@ export default function NetworkSelector() {
         </span>
       </button>
 
-      {/* Custom RPC Input */}
+      {/* Custom RPC Input Panel — shown only when Custom is selected */}
       {showCustomInput && (
         <div className="absolute right-0 top-full mt-1 w-80 bg-surface-dark border border-border-dark rounded-lg shadow-lg p-4 z-50">
           <div className="space-y-3">
@@ -345,7 +356,7 @@ export default function NetworkSelector() {
         </div>
       )}
 
-      {/* Dropdown Menu */}
+      {/* Dropdown Menu — hidden while custom input panel is open */}
       {isOpen && !showCustomInput && (
         <div
           className="absolute right-0 top-full mt-1 w-64 bg-surface-dark border border-border-dark rounded-lg shadow-lg overflow-hidden z-50"
