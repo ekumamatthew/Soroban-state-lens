@@ -10,10 +10,10 @@ import type { DecoderWorkerApi } from '../types/decoder-worker'
  * @returns A promise that resolves to the Comlink-wrapped decoder worker.
  * @throws {Error} if the worker factory fails during initialization.
  */
-export async function createDecoderWorkerSafe(): Promise<Comlink.Remote<DecoderWorkerApi>> {
+export function createDecoderWorkerSafe(): Promise<Comlink.Remote<DecoderWorkerApi>> {
   try {
     // Wrap createDecoderWorker and normalize thrown boot errors.
-    return createDecoderWorker()
+    return Promise.resolve(createDecoderWorker())
   } catch (error) {
     // Return rejected promise with stable message for constructor failures.
     const message =
@@ -22,6 +22,6 @@ export async function createDecoderWorkerSafe(): Promise<Comlink.Remote<DecoderW
         : typeof error === 'string'
           ? error
           : 'Unknown error'
-    throw new Error(`Failed to initialize decoder worker: ${message}`)
+    return Promise.reject(new Error(`Failed to initialize decoder worker: ${message}`))
   }
 }

@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Card, Heading, Button } from '@stellar/design-system'
+import { Button, Card, Heading } from '@stellar/design-system'
 import { validateContractRouteParam } from './-validateContractRouteParam'
 
 export const Route = createFileRoute('/contracts/$contractId/explorer')({
@@ -53,7 +53,7 @@ function ContractExplorer() {
 
       {/* Placeholder Content */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-2">
+        <Card>
           <div className="p-6 space-y-6">
             <div className="space-y-2">
               <Heading size="sm" as="h3" className="text-text-muted uppercase tracking-widest text-[11px] font-bold">
